@@ -6,7 +6,8 @@ class AurenaAPIClient:
     def __init__(self, api_url: str):
         self.api_url = api_url
     
-    def fetch_single_page(self, offset: int = 0, limit: int = 200, language_code: str = "de_DE") -> Dict[str, Any]:
+    def fetch_single_page(self, offset: int = 0, limit: int = 200, language_code: str = "de_DE", 
+                         province_codes: List[str] = None) -> Dict[str, Any]:
         payload = {
             "offset": offset,
             "limit": limit,
@@ -15,7 +16,7 @@ class AurenaAPIClient:
                 "auctions": [],
                 "brands": [],
                 "categories": [],
-                "provinces": []
+                "provinces": province_codes or []
             },
             "query": ""
         }
@@ -33,16 +34,21 @@ class AurenaAPIClient:
         sys.stdout.write(f'\r🔍 Fetching data: [{bar}] {percent:.1f}% ({current:,}/{total:,})')
         sys.stdout.flush()
     
-    def fetch_all_data(self, limit_per_request: int = 200, language_code: str = "de_DE") -> List[Dict[str, Any]]:
+    def fetch_all_data(self, limit_per_request: int = 200, language_code: str = "de_DE", 
+                      province_codes: List[str] = None) -> List[Dict[str, Any]]:
         all_items = []
         offset = 0
         total_items = None
         
-        print(f"🚀 Starting data fetch with {limit_per_request} items per request...")
+        if province_codes:
+            print(f"🚀 Starting data fetch with province filter: {', '.join(province_codes)}")
+        else:
+            print(f"🚀 Starting data fetch (all provinces)")
+        print(f"📦 {limit_per_request} items per request...")
         
         while True:
             try:
-                data = self.fetch_single_page(offset, limit_per_request, language_code)
+                data = self.fetch_single_page(offset, limit_per_request, language_code, province_codes)
                 items = data.get('items', [])
                 
                 if total_items is None:

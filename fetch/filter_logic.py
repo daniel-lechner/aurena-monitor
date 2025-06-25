@@ -3,10 +3,12 @@ from typing import List, Dict, Any, Optional
 
 class AuctionFilter:
     def __init__(self, min_bids: Optional[int] = None, max_bids: Optional[int] = None, 
-                 hours_before_end: Optional[int] = None, language_code: str = "de_DE"):
+                 hours_before_end: Optional[int] = None, locations: Optional[List[str]] = None,
+                 language_code: str = "de_DE"):
         self.min_bids = min_bids
         self.max_bids = max_bids
         self.hours_before_end = hours_before_end
+        self.locations = [loc.upper() for loc in (locations or [])]
         self.language_code = language_code
     
     def format_bid_criteria(self) -> str:
@@ -26,6 +28,12 @@ class AuctionFilter:
             return "any time"
         else:
             return f"within {self.hours_before_end} hours"
+    
+    def format_location_criteria(self) -> str:
+        if not self.locations:
+            return "any location"
+        else:
+            return f"locations: {', '.join(self.locations)}"
     
     def passes_bid_filter(self, bid_count: int) -> bool:
         if self.min_bids is not None and bid_count < self.min_bids:
@@ -49,6 +57,9 @@ class AuctionFilter:
             return True, end_time, hours_remaining
         
         return False, end_time, 0
+    
+    def get_province_codes_for_api(self) -> List[str]:
+        return self.locations if self.locations else []
     
     def reorder_item_fields(self, item: Dict[str, Any], auction_url: str) -> Dict[str, Any]:
         ordered_item = {}

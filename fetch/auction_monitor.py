@@ -1,7 +1,7 @@
 import os
 import json
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 from dotenv import load_dotenv
 from .api_client import AurenaAPIClient
 from .filter_logic import AuctionFilter
@@ -20,6 +20,7 @@ class AurenaMonitor:
             min_bids=self._parse_int_env('MIN_BIDS'),
             max_bids=self._parse_int_env('MAX_BIDS'),
             hours_before_end=self._parse_int_env('HOURS_BEFORE_END'),
+            locations=self._parse_locations_env('LOCATION'),
             language_code=self.language_code
         )
         
@@ -35,6 +36,12 @@ class AurenaMonitor:
             print(f"⚠️  Warning: Invalid value for {env_var}: '{value}'. Ignoring.")
             return None
     
+    def _parse_locations_env(self, env_var: str) -> List[str]:
+        value = os.getenv(env_var, '').strip()
+        if value == '':
+            return []
+        return [loc.strip().upper() for loc in value.split(',') if loc.strip()]
+    
     def save_results(self, items) -> None:
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         filename = f"results/auction_results_{timestamp}.json"
@@ -45,8 +52,10 @@ class AurenaMonitor:
                 'hours_before_end': self.filter.hours_before_end,
                 'min_bids': self.filter.min_bids,
                 'max_bids': self.filter.max_bids,
+                'locations': self.filter.locations,
                 'bid_criteria': self.filter.format_bid_criteria(),
-                'time_criteria': self.filter.format_time_criteria()
+                'time_criteria': self.filter.format_time_criteria(),
+                'location_criteria': self.filter.format_location_criteria()
             },
             'total_items': len(items),
             'items': items
@@ -60,18 +69,22 @@ class AurenaMonitor:
     def run(self):
         bid_criteria = self.filter.format_bid_criteria()
         time_criteria = self.filter.format_time_criteria()
+        location_criteria = self.filter.format_location_criteria()
         
         print("🏆 Aurena Auction Monitor")
         print(f"🔎 Searching for items with {bid_criteria} ending {time_criteria}")
+        if self.filter.locations:
+            print(f"📍 Filtering by {location_criteria}")
         print()
         
-        all_items = self.api_client.fetch_all_data(self.limit_per_request, self.language_code)
+        province_codes = self.filter.get_province_codes_for_api()
+        all_items = self.api_client.fetch_all_data(self.limit_per_request, self.language_code, province_codes)
         
         if not all_items:
             print("❌ No data fetched. Exiting.")
             return
         
-        print(f"🔍 Filtering {len(all_items):,} items...")
+        print(f"🔍 Filtering {len(all_items):,} items by bid count and time...")
         filtered_items = self.filter.filter_items(all_items, self.base_url)
         
         print()
@@ -80,7 +93,10 @@ class AurenaMonitor:
         print(f"   Items matching filter: {len(filtered_items):,}")
         
         if len(filtered_items) == 0:
-            print(f"   ❌ No items found with {bid_criteria} ending {time_criteria}")
+            criteria_parts = [f"{bid_criteria} ending {time_criteria}"]
+            if self.filter.locations:
+                criteria_parts.append(f"in {location_criteria}")
+            print(f"   ❌ No items found with {' '.join(criteria_parts)}")
         else:
             print(f"   ✅ Found {len(filtered_items):,} matching items!")
             

@@ -31,6 +31,7 @@ A Python script that monitors aurena.at auctions to find items with specific bid
 
    LIMIT_PER_REQUEST=200
    LANGUAGE_CODE=de_DE
+   LOCATION=VIE,NOE
 
    SAVE_RESULTS=true
    ```
@@ -128,6 +129,18 @@ Set environment variables or modify defaults:
 - `HOURS_BEFORE_END`: Items ending within X hours
 - `LIMIT_PER_REQUEST`: API pagination size (default: 200)
 - `SAVE_RESULTS`: Save to JSON files (default: true)
+- **Available province codes for `LOCATION`:**
+  - VIE - Vienna
+  - NOE - Niederösterreich
+  - STMK - Steiermark
+  - OOE - Oberösterreich
+  - SBG - Salzburg
+  - KTN - Kärnten
+  - TIR - Tirol
+  - BGL - Burgenland
+  - GER - Germany
+  - ITA - Italy
+  - SHIP - Shipping
 
 ## Requirements
 
