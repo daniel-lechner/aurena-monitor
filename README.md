@@ -134,3 +134,4 @@ Set environment variables or modify defaults:
 - Python 3.7+
 - requests - HTTP requests
 - python-dotenv - Environment variable management
+- inquirer 3

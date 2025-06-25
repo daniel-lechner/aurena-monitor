@@ -3,8 +3,8 @@ import json
 from datetime import datetime
 from typing import Optional
 from dotenv import load_dotenv
-from api_client import AurenaAPIClient
-from filter_logic import AuctionFilter
+from .api_client import AurenaAPIClient
+from .filter_logic import AuctionFilter
 
 load_dotenv()
 
@@ -89,3 +89,5 @@ class AurenaMonitor:
                 self.save_results(filtered_items)
             else:
                 print("   📝 Results not saved (SAVE_RESULTS=false)")
+        
+        input("\n⏸️  Press Enter to return to main menu...")
