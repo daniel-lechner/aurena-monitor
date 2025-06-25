@@ -35,12 +35,6 @@ class AurenaMonitor:
             print(f"⚠️  Warning: Invalid value for {env_var}: '{value}'. Ignoring.")
             return None
     
-    def generate_auction_url(self, item) -> str:
-        lid = item.get('lid')
-        if not lid:
-            return ""
-        return f"{self.base_url}/{lid}/item"
-    
     def save_results(self, items) -> None:
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         filename = f"results/auction_results_{timestamp}.json"
@@ -78,7 +72,7 @@ class AurenaMonitor:
             return
         
         print(f"🔍 Filtering {len(all_items):,} items...")
-        filtered_items = self.filter.filter_items(all_items)
+        filtered_items = self.filter.filter_items(all_items, self.base_url)
         
         print()
         print("📊 Results Summary:")

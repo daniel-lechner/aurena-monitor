@@ -50,7 +50,39 @@ class AuctionFilter:
         
         return False, end_time, 0
     
-    def filter_items(self, items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def reorder_item_fields(self, item: Dict[str, Any], auction_url: str) -> Dict[str, Any]:
+        ordered_item = {}
+        
+        if 'lid' in item:
+            ordered_item['lid'] = item['lid']
+        
+        ordered_item['auction_url'] = auction_url
+        
+        if 'ld' in item and 'ti' in item['ld'] and 'de_DE' in item['ld']['ti']:
+            ordered_item['title'] = item['ld']['ti']['de_DE']
+        
+        if 'ld' in item and 'de' in item['ld'] and 'de_DE' in item['ld']['de']:
+            ordered_item['description'] = item['ld']['de']['de_DE']
+        
+        if 'sp' in item:
+            ordered_item['sp'] = item['sp']
+        
+        if 'et' in item:
+            ordered_item['et'] = item['et']
+        
+        if 'hours_remaining' in item:
+            ordered_item['hours_remaining'] = item['hours_remaining']
+        
+        if 'end_time_formatted' in item:
+            ordered_item['end_time_formatted'] = item['end_time_formatted']
+        
+        for key, value in item.items():
+            if key not in ordered_item and key != 'im':
+                ordered_item[key] = value
+        
+        return ordered_item
+    
+    def filter_items(self, items: List[Dict[str, Any]], base_url: str) -> List[Dict[str, Any]]:
         filtered_items = []
         
         for item in items:
@@ -68,7 +100,12 @@ class AuctionFilter:
                 
             item['end_time_formatted'] = end_time.strftime('%Y-%m-%d %H:%M:%S')
             item['hours_remaining'] = hours_remaining
-            filtered_items.append(item)
+            
+            lid = item.get('lid')
+            auction_url = f"{base_url}/{lid}/item" if lid else ""
+            
+            ordered_item = self.reorder_item_fields(item, auction_url)
+            filtered_items.append(ordered_item)
         
         filtered_items.sort(key=lambda x: x.get('et', 0))
         return filtered_items

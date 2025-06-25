@@ -76,32 +76,23 @@ A Python script that monitors aurena.at auctions to find items with specific bid
      "items": [
        {
          "lid": 12345678,
+         "auction_url": "https://www.aurena.at/posten/12345678/item",
+         "title": "Vintage Kamera Set",
+         "description": "<p>Beschreibung der Artikel...</p>",
+         "sp": 25.5,
+         "et": 1719331852000,
+         "hours_remaining": 2.5,
+         "end_time_formatted": "2025-06-25 16:30:52",
          "aid": 987654,
          "seq": 1,
          "bc": 0,
-         "sp": 25.5,
          "hib": {
            "val": null,
            "id": null
          },
-         "et": 1719331852000,
          "ts": 2,
-         "ld": {
-           "ti": {
-             "de_DE": "Vintage Kamera Set"
-           },
-           "de": {
-             "de_DE": "<p>Beschreibung der Artikel...</p>"
-           }
-         },
-         "im": [
-           "https://images.aurena.at/image1.jpg",
-           "https://images.aurena.at/image2.jpg"
-         ],
          "cat": 1001,
-         "brd": 2002,
-         "end_time_formatted": "2025-06-25 16:30:52",
-         "hours_remaining": 2.5
+         "brd": 2002
        }
      ]
    }
@@ -110,6 +101,7 @@ A Python script that monitors aurena.at auctions to find items with specific bid
    **Key fields explanation:**
 
    - Item Identification:
+     - `auction_url` - url to directly access the listed item
      - `lid` - Listing ID (for URL construction)
      - `aid` - Auction ID
      - `seq` - Position in auction
@@ -125,7 +117,6 @@ A Python script that monitors aurena.at auctions to find items with specific bid
    - **Item Details:**
      - `ld.ti.de_DE` - German title
      - `ld.de.de_DE` - German description (HTML)
-     - `im[]` - Array of image URLs
      - `cat` - Category ID
      - `brd` - Brand ID
 
